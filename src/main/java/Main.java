@@ -1,5 +1,5 @@
 import controllers.TestController;
-import víews.TestFrame;
+import views.TestFrame;
 
 public class Main {
     public static void main(String[] args) {

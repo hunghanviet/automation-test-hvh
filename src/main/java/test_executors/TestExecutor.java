@@ -57,7 +57,6 @@ public class TestExecutor {
     public void executeTest(){
 
         String TCStatus = "Pass";
-        testExecuteStatus.setTC(testExecuteStatus.getTC() + 1);
         // This will Read RunMode from TestSuite for testID
         String Skip = testCase.get("Skip");
         String testCaseName = testCase.get("TestCaseID");
@@ -129,6 +128,8 @@ public class TestExecutor {
         }
 
         try {
+            System.out.println("Total TC = "+testExecuteStatus.getTC());
+            System.out.println("Head Cell Num = "+readExcelFileHepler.getHeadCellNum("TestCases"));
             reportHelper.getExcelReport().setResult("TestCases", TCStatus, testExecuteStatus.getTC(), readExcelFileHepler.getHeadCellNum("TestCases"), "TongHop",
                     testExecuteStatus);
         } catch (IOException e) {

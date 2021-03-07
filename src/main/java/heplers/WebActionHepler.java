@@ -4,9 +4,12 @@ import models.ActionInputData;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,6 +19,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+
+import static org.openqa.selenium.UnexpectedAlertBehaviour.ACCEPT;
+import static org.openqa.selenium.UnexpectedAlertBehaviour.IGNORE;
 
 
 public class WebActionHepler {
@@ -235,10 +241,10 @@ public class WebActionHepler {
 
     public String checkContainText(ActionInputData input) {
         try {
-            String ActualText = findElement(input).getText();
+            String ActualText = findElement(input).getText().trim();
             System.out.println("actual text is: " + ActualText);
 
-            if (!ActualText.contains(input.getTestData())) {
+            if (!ActualText.contains(input.getTestData().trim())) {
                 return "Failed - Actual text " + ActualText + " doesn't contain expected text " + input.getTestData();
             }
         } catch (Throwable t) {
@@ -312,10 +318,10 @@ public class WebActionHepler {
 
     public String checkTitlePage(ActionInputData input) {
 
-        String actualTileTle = driver.getTitle();
-        System.out.println("acutual title page is: " + actualTileTle);
+        String actualTileTle = driver.getTitle().trim();
+        System.out.println("actual title page is: " + actualTileTle);
         System.out.println("expected title page is: " + input.getTestData());
-        if (actualTileTle.equals(input.getTestData()))
+        if (actualTileTle.equals(input.getTestData().trim()))
             return "Pass";
         else
             return "Failed - Not on page" + input.getTestData();
@@ -339,11 +345,20 @@ public class WebActionHepler {
             WebDriverWait wait = new WebDriverWait(driver, 5);
             wait.until(ExpectedConditions.alertIsPresent());
             Alert alert = driver.switchTo().alert();
-
+            if(alert==null){
+                System.out.println("Alert not found ");
+            }
             alert.accept();
+
             return "Pass";
         } catch (Throwable t) {
-            return "Failed - Alert is not present";
+            Alert alert = driver.switchTo().alert();
+            if(alert==null){
+                System.out.println("Alert not found ");
+                return "Failed - Alert is not present";
+            }
+            alert.accept();
+            return "Pass";
         }
 
     }
@@ -354,7 +369,7 @@ public class WebActionHepler {
 
             Alert alert = driver.switchTo().alert();
             String actualMessage = alert.getText();
-            if (actualMessage.equals(input.getTestData())) {
+            if (actualMessage.trim().equals(input.getTestData().trim())) {
                 alert.accept();
                 return "Pass";
             } else {
@@ -473,12 +488,18 @@ public class WebActionHepler {
         if ("firefox".equals(input.getTestData())) {
             System.setProperty("webdriver.gecko.driver",
                     System.getProperty("user.dir") + "\\src\\main\\resource\\drivers\\geckodriver.exe");
+            DesiredCapabilities firefox = DesiredCapabilities.firefox();
+            firefox.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
             driver = new FirefoxDriver();
             return "Pass";
         } else if ("chrome".equals(input.getTestData())) {
             System.setProperty("webdriver.chrome.driver",
                     System.getProperty("user.dir") + "\\src\\main\\resource\\drivers\\chromedriver.exe");
-            driver = new ChromeDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.setUnhandledPromptBehaviour(IGNORE);
+//            DesiredCapabilities chrome = DesiredCapabilities.chrome();
+//            chrome.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+            driver = new ChromeDriver(options);
             return "Pass";
         } else if ("ie".equals(input.getTestData())) {
             System.setProperty("webdriver.chrome.driver",

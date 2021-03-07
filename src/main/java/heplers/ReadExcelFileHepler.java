@@ -109,7 +109,7 @@ public class ReadExcelFileHepler {
                 value = formatter.formatCellValue(valueCell).replaceAll("\n", "");
                 map.put(key, value);
                 listOfValue.add(value);
-                System.out.println("list of value is: " + listOfValue);
+                //System.out.println("list of value is: " + listOfValue);
 
             }
 
